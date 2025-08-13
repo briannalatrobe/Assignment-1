@@ -1,14 +1,15 @@
 <!DOCTYPE HTML>
 <html>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light dark">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- This is used for the hamburger menu, specifically browser scaling -->
+    <meta name="color-scheme" content="light dark"> <!-- This is used for the dark mode feature -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <!-- This is used for the hamburger menu icon -->
+    <!--This style sheet is used for the dark mode feature-->
     <style>
         body {
-            padding: 25px;
+            padding: 20px;
             background-color: white;
             color: black;
-            font-size: 25px;
+            font-size: 30px;
         }
 
         .dark-mode {
@@ -16,7 +17,9 @@
             color: white;
         }
     </style>
-    <style>
+
+    <!--This style sheet is used for the vertical lines that separate the header and footer-->
+    <style> 
         hr.thickline {
             height: 5px;
             border: none;
@@ -28,14 +31,15 @@
         body.dark-mode hr.thickline {
             background-color: white; 
         }
-            
 
         hr.vertical-line {
         border-left: 1px solid;
         height: 100px; 
         }
     </style>
-    <style>
+
+    <!--This style sheet is the functionality of the hamburger menu-->
+    <style> 
         .topnav {
             overflow: hidden;
         }
@@ -84,7 +88,9 @@
                 }
         }
     </style>
-    <style>
+
+    <!--This style sheet is for the slider which controls the dark mode setting-->
+    <style> 
         .switch {
             position: relative;
             display: inline-block;
@@ -123,7 +129,7 @@
         }
 
         input:checked + .slider {
-            background-color: white;
+            background-color: grey;
         }
 
         input:focus + .slider {
@@ -144,32 +150,83 @@
             border-radius: 50%;
         }
     </style>
-    
-    <head>
-        <p style="text-align: right;">STUDENT NUMBER: 21984687</p> 
-        <p style="text-align: center;">Assignment 1 Submission</p>
+
+    <!--This style sheet is for the output button--> 
+    <style>
+        .MyButton {
+            color: black;
+            background-color: white;
+            padding: 15px 15px;
+            border: 3px solid black;
+            border-radius: 30%;
+        }
+
+        body.dark-mode .MyButton {
+            background-color: black;
+            border: 3px solid white;
+            color: white;
+        }
+    </style>
+
+    <!--This style sheet is for the tab section-->
+    <style>
+        .tab-headers {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .tab-button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid black;
+            padding: 5px;
+            background-color: white;
+            cursor: pointer;
+            width: 120px;
+        }
+
+        .tab-button.active {
+            background-color: #ddd;
+        }
+
+        .remove-button {
+            background: none;
+            border: none;
+            color: red;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+
+    <head> <!--This includes student number, title, dark mode function, and hamburger menu-->
+        <p style="text-align: right; font-size: 15px;">STUDENT NUMBER: 21984687</p> <!--student number is located in top right hand corner-->
+        <p style="text-align: center;">Assignment 1 Submission</p> <!--Title is centered-->
+
+        <!--Dark mode checkbox function-->
         <p style="text-align: right; font-size: 18px">Dark Mode 
             <label class="switch">
-            <input type="checkbox" onclick="DarkMode()">
-            <span class="slider round"></span>
+            <input type="checkbox" onclick="DarkMode()"> <!--When the button is clicked, the DarkMode function applies itself-->
+            <span class="slider round"></span> 
         </label></p>
-        <script>
+        <!--This script makes the checkbox toggle dark mode on/off-->
+        <script> 
             function DarkMode() {
                var element = document.body;
                element.classList.toggle("dark-mode");
             }
         </script>
         
-
         <div>
-            <hr class="thickline">
-                <div class="topnav" id="MainMenu">
-                  <element>Tabs</element>
-                  <element>Escape Room</element>
-                  <element>Coding Races</element>
-                  <element>Court Room</element>
-                  <element>About</element>
-                  <element href="javascript:void(0);" class="icon" onclick="Collapse()">
+            <hr class="thickline"> <!--Separator Line-->
+                <div class="topnav" id="MainMenu"> <!--This is the list of menu items in the Hamburger menu-->
+                  <element href="Home Page.html">Tabs</element>
+                  <element href="Escape Room.html">Escape Room</element>
+                  <element href="Coding Races.html">Coding Races</element>
+                  <element href="Court Room.html">Court Room</element>
+                  <element href="About Page.html">About</element>
+                  <element href="javascript:void(0);" class="icon" onclick="Collapse()"> <!--This is saying that when the page goes below a certain number of pixels in size, to collapse the menu -->
                     <i class="fa fa-bars"></i>
                   </element>
                 </div>
@@ -184,16 +241,63 @@
                   }
                 }
                 </script>
-            <hr class="thickline">
+            <hr class="thickline"> <!--Separator Line-->
         </div>
     </head>
     <body>
         <div>
-            
+        <p style="text-align: left; margin-left: 150px;">Tabs</p>
+        <p style="text-align: right; margin-right: 500px;"><button class="MyButton">Output</button></p>
+        </div>
+        <div>
+            <section class="tabs-section">
+                <div>
+                  Tabs Headers: <button onclick="addTab()">[+]</button><button onclick="RemoveTab()">[-]</button>
+                </div>
+                <div class="tab-headers" id="tabHeaders">
+                </div>
+            </section>
+            <script>
+            let tabCounter = 1;       // Keeps track of how many tabs have been added
+            let currentTabId = null;  // Stores the ID of the currently active tab
+
+            function addTab() {
+                const id = `tab${tabCounter++}`;  // Unique ID like "tab1", "tab2", etc.
+                const label = `Step ${tabCounter - 1}`;
+
+  
+                const btn = document.createElement('button');
+                btn.className = 'tab-button';
+                btn.id = `btn-${id}`;
+
+  
+                document.getElementById('tabHeaders').appendChild(btn);
+
+
+                showTab(id);
+            }
+            </script>
+            <script>
+            function removeTab(event, id) {
+                event.stopPropagation(); 
+
+                const tabButton = document.getElementById(`btn-${id}`);
+                if (tabButton) {
+                    tabButton.parentNode.removeChild(tabButton);
+                }
+
+                if (currentTabId === id) {
+                    const content = document.getElementById('tabContent');
+                    currentTabId = null;
+                }
+            }
+            </script>
         </div>
     </body>
-    <foot>
-        <hr class ="thickline">
-        <p style="text-align: center">Copyright, Brianna Bagnall, 21984687, AUG-2025</p>
+    <foot> <!--Footer Section includes Copyright, Name, Number, and Date-->
+        <hr class ="thickline"> <!--Line used as a separator-->
+        <br>
+        <br>
+        <p style="text-align: center; font-size: 20px;">Copyright, Brianna Bagnall, 21984687, AUG-2025</p>
     </foot>
 </html>
