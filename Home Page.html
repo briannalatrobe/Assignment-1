@@ -185,18 +185,11 @@
             background-color: white;
             cursor: pointer;
             width: 120px;
+            color: black
         }
 
         .tab-button.active {
             background-color: #ddd;
-        }
-
-        .remove-button {
-            background: none;
-            border: none;
-            color: red;
-            font-weight: bold;
-            cursor: pointer;
         }
     </style>
 
@@ -252,44 +245,65 @@
         <div>
             <section class="tabs-section">
                 <div>
-                  Tabs Headers: <button onclick="addTab()">[+]</button><button onclick="RemoveTab()">[-]</button>
+                  Tabs Headers: <button onclick="AddTab()">[+]</button>
+                  <button onclick="RemoveTab()">[-]</button>
                 </div>
                 <div class="tab-headers" id="tabHeaders">
+                <div id="tabContents"></div>
+                
                 </div>
             </section>
-            <script>
-            let tabCounter = 1;       // Keeps track of how many tabs have been added
-            let currentTabId = null;  // Stores the ID of the currently active tab
-
-            function addTab() {
-                const id = `tab${tabCounter++}`;  // Unique ID like "tab1", "tab2", etc.
+            <script> //This script holds the function of adding and removing tabs
+            let tabCounter = 1;       //Counter for the amount of tabs currently active
+            let currentTabId = null;  //Stores the ID of the tab that is currently active
+            
+            //This is the function for adding the tab
+            function AddTab() {
+                const id = `tab${tabCounter++}`; 
                 const label = `Step ${tabCounter - 1}`;
 
-  
                 const btn = document.createElement('button');
                 btn.className = 'tab-button';
                 btn.id = `btn-${id}`;
+                btn.textContent = label;
+                btn.onclick = () => showTab(id);  
 
   
                 document.getElementById('tabHeaders').appendChild(btn);
 
+                const content = document.createElement('div');
+                content.id = `content-${id}`;
+                content.style.display = "none";
+                document.getElementById('tabContents').appendChild(content);
 
                 showTab(id);
             }
-            </script>
-            <script>
-            function removeTab(event, id) {
-                event.stopPropagation(); 
 
-                const tabButton = document.getElementById(`btn-${id}`);
-                if (tabButton) {
-                    tabButton.parentNode.removeChild(tabButton);
+            //This is the function for removing the tab
+            function RemoveTab() {
+                if (!currentTabId) return;
+                    document.getElementById(`btn-${currentTabId}`).remove();
+                    document.getElementById(`content-${currentTabId}`).remove();
+
+                const firstRemaining = document.querySelector('.tab-button');
+                if (firstRemaining) {
+                    showTab(firstRemaining.id.replace("btn-", ""));
                 }
-
-                if (currentTabId === id) {
-                    const content = document.getElementById('tabContent');
+                else {
                     currentTabId = null;
                 }
+            }
+
+            function showTab(id) {
+                // hide all contents + deactivate buttons
+                document.querySelectorAll('#tabContents > div').forEach(div => div.style.display = "none");
+                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove("active"));
+
+                // show selected
+                document.getElementById(`content-${id}`).style.display = "block";
+                document.getElementById(`btn-${id}`).classList.add("active");
+
+                currentTabId = id;
             }
             </script>
         </div>
