@@ -273,8 +273,8 @@
     <body> <!--Beginning of Body-->
         <div> <!--This div is for the body heading "Tabs"-->
         <p style="text-align: left; margin-left: 100px;">Tabs</p>
-        
         </div>
+        <!--This section is for the positioning of the content exclusive to Home Page.html-->
         <div> <!--This div is for the sub-heading & for the [+] and [-] buttons-->
             <section class="tabs-section">
                 <div>
@@ -282,173 +282,188 @@
                   <button onclick="AddTab()">[+]</button>
                   <button onclick="RemoveTab()">[-]</button>
                 </div>
+                <!--This div is where the tabs go-->
                 <div id="tabContents">
+                    <!--tabHeaders is a container that holds all the tab buttons-->
                     <div class="tab-headers" id="tabHeaders"></div>
-                
+                    <!--This div is where the tab content box goes-->
                     <div>
                         <h3>Tabs Content</h3>
                         <div id="tabContentBox" class="tab-content-box" contenteditable="true">
                         Select a tab to see its content.
                         </div>
                     </div>
+                    <!--This div is where the html output box & reset button goes-->
                     <div>
                         <h3>HTML Output</h3>
                         <pre id="codeOutput" class="tab-content-box"></pre>
                         <button class="MyButton" onclick="ResetTabs()">Reset</button>
                     </div>
-                    
                 </div>
             </section>
+            
+            <!--This script contains the functionality for the body section of the webpage-->
             <script>
-                let tabCounter = 1;
-                let currentTabId = null;
-                let tabData = {};
-                let deletedTabs = [];
-                const MAX_TABS = 15;
+                let tabCounter = 1; //This keeps a count on how many tabs there are open on the page
+                let currentTabID = null; //Initialises a variable that is used to represent the ID of the tab that is currently open
+                let tabData = {}; //Initialises an array that stores the content within a tab
+                let deletedTabs = []; //Initialises an array that stores tabs when they are deleted
+                const maxTabs = 15; //Can only have a maximum of 15 tabs open at any given time
                 
-                // Load saved tabs from localStorage
-                window.onload = function() {
-                    const savedTabs = JSON.parse(localStorage.getItem("tabsData"));
-                    if(savedTabs && savedTabs.tabData && Object.keys(savedTabs.tabData).length > 0) {
-                        tabCounter = savedTabs.tabCounter || Object.keys(savedTabs.tabData).length;
-                        tabData = savedTabs.tabData;
-                        const headers = document.getElementById("tabHeaders");
-                        for(const id in tabData) {
-                            const btn = createTabButton(id, tabData[id].label);
-                            headers.appendChild(btn);
+                // This function loads saved tabs from localStorage
+                window.onload = function() { //this function runs when the webpage is opened.
+                    const savedTabs = JSON.parse(localStorage.getItem("tabsData")); //receives any tabs that had been created from a different time
+                    if(savedTabs && savedTabs.tabData && Object.keys(savedTabs.tabData).length > 0) { //If there are saved tabs
+                        tabCounter = savedTabs.tabCounter || Object.keys(savedTabs.tabData).length; //the counter is now equal to the length of the amount of tabs there are saved
+                        tabData = savedTabs.tabData; //the data in the tabs becomes what was in localStorage.
+                        const savedHeaders = document.getElementById("tabHeaders"); //allows us to add tab buttons for the saved tabs
+                        for(const id in tabData) { //loops over each tab
+                            const btn = createTabButton(id, tabData[id].label); //creates a tab button for each tab
+                            savedHeaders.appendChild(btn); //appends the button to tabHeaders for each saved tab
                         }
-                        showTab(Object.keys(tabData)[0]);
-                    } else {
-                        // No saved tabs, create first default tab
+                        showTab(Object.keys(tabData)[0]); //opens the tab that comes first in the array of tabs.
+                    }
+                    
+                    else {
+                        //If there are no saved tabs, open a new one. this ensures there is always one tab open.
                         AddTab();
                     }
                 }
                 
-                // Create a tab button
+                //This function allows for new tab buttons to be created
                 function createTabButton(id, label) {
-                    const btn = document.createElement('button');
-                    btn.className = 'tab-button';
-                    btn.id = `btn-${id}`;
-                    btn.textContent = label;
-                    btn.onclick = () => showTab(id);
-                    btn.ondblclick = () => renameTab(btn, id);
+                    const btn = document.createElement('button'); //creates a new button instance which doesn't yet exist
+                    btn.className = 'tab-button'; //applies the css styling to each new button
+                    btn.id = `btn-${id}`; //gives the button a unique ID
+                    btn.textContent = label; //sets the text displayed in the button
+                    btn.onclick = () => showTab(id); //when the user clicks once, the content in the tab appears
+                    btn.ondblclick = () => renameTab(btn, id); //when the user clicks twice, the name of the button can be changed
                     return btn;
                 }
                 
-                // Add a new tab or restore last deleted tab
+                //This function allows for a new tab to be added or for the last deleted tab to be restored
                 function AddTab() {
-                    if (Object.keys(tabData).length >= MAX_TABS) {
+                    
+                    //If there are more than 15 tabs, this if statement stops the user from adding any more tabs and informs them that they have reached the limit.
+                    if (Object.keys(tabData).length >= maxTabs) {
                         alert("Maximum of 15 tabs reached.");
                         return;
+                        }
+            
+                    let id, label, content; //initialises the elements of a tab
+                    // check for deleted tabs; if there have been tabs that have been deleted, this will restore them.
+                    if (deletedTabs.length > 0) { 
+                        const restored = deletedTabs.pop(); //"restored" is the last tab that was in the deletedTabs array.
+                        id = restored.id; //defines the id as the id that was in the last deleted tab
+                        label = restored.label; //defines the label as the id that was in the last deleted tab
+                        content = restored.content; //defines the content as the id that was in the last deleted tab
+                    } 
+                    else {
+                        id = `tab${tabCounter}`; //defines id using tabCounter
+                        label = `Step ${tabCounter}`; //labels the tab by default as "step (counter number)"
+                        content = `<p>Edit this content for ${label}</p>`;  //outputs a line of content including the label to explain to the user what to do.
+                        tabCounter++; //increases the tab counter
                     }
                 
-                    let id, label, content;
-                    if (deletedTabs.length > 0) {
-                        // Restore the last deleted tab
-                        const restored = deletedTabs.pop();
-                        id = restored.id;
-                        label = restored.label;
-                        content = restored.content;
-                    } else {
-                        id = `tab${Date.now()}`;
-                        tabCounter++;
-                        label = `Step ${tabCounter}`;
-                        content = `<p>Edit this content for ${label}</p>`;
-                    }
+                    tabData[id] = { label, content }; //puts the tab in the array
                 
-                    tabData[id] = { label, content };
-                
-                    const btn = createTabButton(id, label);
-                    document.getElementById('tabHeaders').appendChild(btn);
-                    showTab(id);
-                    saveTabs();
+                    const btn = createTabButton(id, label); //creates a button for the tab
+                    document.getElementById('tabHeaders').appendChild(btn); //appends a button to tabHeaders which allows it to appear on the webpage
+                    showTab(id); //immediately shows the content in the new tab that was created
+                    saveTabs(); //saves the tab to localStorage
                 }
                 
-                // Remove current tab (keeps at least one)
+                //This function removes the current tab selected
+                //There must be one tab open at any given time
                 function RemoveTab() {
-                    if (!currentTabId) return;
+                    if (!currentTabID) return;
                 
+                    //an error message appears if the user is trying to delete the last tab.
                     if(Object.keys(tabData).length === 1) {
                         alert("You must have at least one tab.");
                         return;
                     }
                 
-                    // Save deleted tab to restore later
-                    deletedTabs.push({ id: currentTabId, ...tabData[currentTabId] });
+                    //Appends the deleted tab to the deleted tab array.
+                    deletedTabs.push({ id: currentTabID, ...tabData[currentTabID] });
                 
-                    document.getElementById(`btn-${currentTabId}`).remove();
-                    delete tabData[currentTabId];
+                    document.getElementById(`btn-${currentTabID}`).remove(); //finds the button related to the tab and removes it from the webpage
+                    delete tabData[currentTabID]; //removes the content from the tabData object
                 
-                    const firstRemaining = document.querySelector('.tab-button');
+                    const firstRemaining = document.querySelector('.tab-button'); //finds the first tab remaining on the page
                     if (firstRemaining) {
-                        showTab(firstRemaining.id.replace("btn-", ""));
-                    }
-                    saveTabs();
+                        showTab(firstRemaining.id.replace("btn-", "")); //replace the old button with the new button
+                    } 
+                    saveTabs(); //save changes to localStorage
                 }
                 
-                // Show a tab
+                // this function allows tab content to be shown
                 function showTab(id) {
-                    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove("active"));
-                    document.getElementById(`btn-${id}`).classList.add("active");
+                    //this section is for the visual appearance of which tab is currently active
+                    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove("active")); //makes none of the tabs active
+                    document.getElementById(`btn-${id}`).classList.add("active"); //finds the tab that is selected and makes it active
                 
-                    document.getElementById('tabContentBox').innerHTML = tabData[id].content;
-                    currentTabId = id;
-                    UpdateCodeOutput();
+                    //this section is for what is displayed in the content box and HTML output box
+                    document.getElementById('tabContentBox').innerHTML = tabData[id].content; //replaces the content with the content of whichever tab is selected
+                    currentTabID = id; //changes the currentTabID to the ID of the tab that is open
+                    UpdateCodeOutput(); //updates the HTML output
                 }
                 
-                // Rename tab
+                // this function allows for tabs to be renamed
                 function renameTab(button, id) {
-                    const currentName = button.textContent;
-                    const newName = prompt("Enter new tab name:", currentName);
-                    if (newName && newName.trim() !== "") {
-                        button.textContent = newName;
-                        tabData[id].label = newName;
-                        saveTabs();
+                    const currentName = button.textContent; //retrieves the current name of the button
+                    const newName = prompt("Enter new tab name:", currentName); //prompts the user to change the name of the tab
+                    if (newName && newName.trim() !== "") { //checks to make sure the user submitted a valid name
+                        button.textContent = newName; //changes the name to the new name
+                        tabData[id].label = newName; //updates the new name as the id of the tab
+                        saveTabs(); //saves the tab updates to localStorage
                     }
                 }
                 
-                // Update content when edited
-                document.getElementById('tabContentBox').addEventListener('input', () => {
-                    if (currentTabId) {
-                        tabData[currentTabId].content = document.getElementById('tabContentBox').innerHTML;
-                        UpdateCodeOutput();
-                        saveTabs();
+                // This script updates the webpage when content is edited
+                document.getElementById('tabContentBox').addEventListener('input', () => { //this is how the webpage knows the user is updating the tab content box
+                    if (currentTabID) { //whichever tab is open
+                        tabData[currentTabID].content = document.getElementById('tabContentBox').innerHTML; //updates the tabData object with the current content of the tab
+                        UpdateCodeOutput(); //updates the HTML Output box
+                        saveTabs(); //saves the updates to localStorage
                     }
                 });
                 
-                // Update code output box
+                // this function updates the code output box to show whatever is in the tab that is currently open.
                 function UpdateCodeOutput() {
-                    if (currentTabId) {
-                        document.getElementById('codeOutput').textContent = tabData[currentTabId].content;
+                    if (currentTabID) { //if the tab is open
+                        document.getElementById('codeOutput').textContent = tabData[currentTabID].content; //display the content in the tab
                     }
                 }
                 
-                // Save tabs to localStorage
+                // this function saves tabs to localStorage
                 function saveTabs() {
                     localStorage.setItem("tabsData", JSON.stringify({ tabCounter, tabData }));
                 }
 
+                //This function allows for the tabs and the content in them to be reset.
                 function ResetTabs() {
+                    //when the reset button is pressed, a confirmation pop-up appears so that if the user pressed the button accidentally their stuff wouldnt immediately be deleted.
                     if(!confirm("Are you sure you want to reset all tabs? This will remove all your changes.")) 
                         return;
 
-                    // Clear localStorage
+                    // clear the items in localStorage
                     localStorage.removeItem("tabsData");
 
-                    // Clear current tabs and deleted stack
-                    tabData = {};
-                    deletedTabs = [];
-                    currentTabId = null;
-                    tabCounter = 0;
+                    // clear the tabs that are on the webpage currently & set the variables back to what they were initially.
+                    tabData = {}; //clears tab data
+                    deletedTabs = []; //clears deleted tabs
+                    currentTabID = null; //there is no current tab open
+                    tabCounter = 1; //resets tabCounter
 
-                    // Remove all tab buttons from the page
+                    // remove all tab buttons from the page
                     document.getElementById('tabHeaders').innerHTML = '';
 
-                    // Reset content box
+                    // reset what appears inside the content box
                     document.getElementById('tabContentBox').innerHTML = 'Select a tab to see its content.';
                     document.getElementById('codeOutput').textContent = '';
 
-                    // Add initial default tab
+                    // create a default tab so that there is always a tab open.
                     AddTab();
                 }
                 </script>
@@ -458,6 +473,6 @@
         <hr class ="thickline"> <!--Line used as a separator-->
         <br>
         <br>
-        <p style="text-align: center; font-size: 20px;">Copyright, Brianna Bagnall, 21984687, AUG-2025</p>
-    </foot>
+        <p style="text-align: center; font-size: 20px;">Copyright, Brianna Bagnall, 21984687, AUG-2025</p> 
+        </foot>
 </html>
