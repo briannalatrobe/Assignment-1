@@ -43,6 +43,7 @@ JavaScript (ES6)
 ~ Dark mode is not persistent on refresh and will reset to default on page reload
 ~ HTMl output only includes tabs that are open
 ~ No external node-modules are included in this assignment
+~ Forgot to add branches
 
 -- STUDENT INFO --
 Author: Brianna Bagnall
